@@ -2,6 +2,8 @@
 var connect = require('connect')
     , express = require('express')
     , io = require('socket.io')
+    , path = require('path')
+    , routes = require('./routes')
     , port = (process.env.PORT || 8081);
 
 //Setup Express
@@ -9,10 +11,11 @@ var server = express.createServer();
 server.configure(function(){
     server.set('views', __dirname + '/views');
     server.set('view options', { layout: false });
+    server.set('view engine', 'jade');
     server.use(connect.bodyParser());
     server.use(express.cookieParser());
     server.use(express.session({ secret: "shhhhhhhhh!"}));
-    server.use(connect.static(__dirname + '/static'));
+    server.use(connect.static(path.join(__dirname, 'static')));
     server.use(server.router);
 });
 
@@ -57,16 +60,11 @@ io.sockets.on('connection', function(socket){
 
 /////// ADD ALL YOUR ROUTES HERE  /////////
 
-server.get('/', function(req,res){
-  res.render('index.jade', {
-    locals : { 
-              title : 'Your Page Title'
-             ,description: 'Your Page Description'
-             ,author: 'Your Name'
-             ,analyticssiteid: 'XXXXXXX' 
-            }
-  });
-});
+// Routes
+
+server.get('/', routes.index);
+server.get('/home', routes.home);
+server.get('/about', routes.about);
 
 
 //A Route for Creating a 500 Error (Useful to keep around)
